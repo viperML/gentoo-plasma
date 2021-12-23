@@ -27,14 +27,18 @@ RUN STAGE3PATH="$(wget -O- "${DIST}/latest-stage3-${MICROARCH}-${SUFFIX}.txt" | 
     && ( sed -i -e 's/#rc_sys=""/rc_sys="docker"/g' etc/rc.conf 2>/dev/null || true ) \
     && echo 'UTC' > etc/timezone \
     && rm ${STAGE3}.DIGESTS.asc ${STAGE3}.CONTENTS.gz ${STAGE3}
-RUN mkdir --parents etc/portage/repos.conf
-RUN cp usr/share/portage/config/repos.conf etc/portage/repos.conf/gentoo.conf
+# Basic stage 3 ready
+
+RUN
+RUN
 
 FROM scratch
 
 WORKDIR /
 COPY --from=builder /gentoo/ /
 
+RUN mkdir --parents etc/portage/repos.conf \
+    && ln -s /usr/share/portage/config/repos.conf /etc/portage/repos.conf/gentoo.conf
 RUN emerge --sync --ask=n
 RUN eselect profile set default/linux/amd64/17.1/desktop/plasma/systemd \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
@@ -43,6 +47,7 @@ RUN eselect profile set default/linux/amd64/17.1/desktop/plasma/systemd \
     && env-update \
     && echo "EMERGE_DEFAULT_OPTS=\"--ask=n --quiet-build=y --binpkg-respect-use=y --getbinpkg=y --with-bdeps=y\"" >> /etc/portage/make.conf \
     && echo "PORTAGE_BINHOST=\"https://gentoo.osuosl.org/experimental/amd64/binpkg/default/linux/17.1/x86-64/\"" >> /etc/portage/make.conf
+# system configured
 RUN emerge --update --deep --changed-use @world \
     && rm -rf /var/cache/distfiles/* \
     && rm -rf /var/cache/binpkgs/*
@@ -50,9 +55,11 @@ RUN emerge kde-plasma/plasma-meta \
     && rm -rf /var/cache/distfiles/* \
     && rm -rf /var/cache/binpkgs/*
 RUN emerge --depclean
+# plasma installed
 
 RUN emerge dev-vcs/git app-portage/repoman app-portage/flaggie app-misc/jq app-portage/gentoolkit \
     && rm -rf /var/cache/distfiles/* \
     && rm -rf /var/cache/binpkgs/*
+# extra tools installed
 
 CMD ["/bin/bash"]
