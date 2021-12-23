@@ -40,8 +40,8 @@ RUN eselect profile set default/linux/amd64/17.1/desktop/plasma/systemd \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen \
     && eselect locale set en_US.utf8 \
-    && env-update
-    && echo "EMERGE_DEFAULT_OPTS=\"--ask=n --quiet-build=y --binpkg-respect-use=y --getbinpkg=y --with-bdeps=y\"" >> /etc/portage/make.conf
+    && env-update \
+    && echo "EMERGE_DEFAULT_OPTS=\"--ask=n --quiet-build=y --binpkg-respect-use=y --getbinpkg=y --with-bdeps=y\"" >> /etc/portage/make.conf \
     && echo "PORTAGE_BINHOST=\"https://gentoo.osuosl.org/experimental/amd64/binpkg/default/linux/17.1/x86-64/\"" >> /etc/portage/make.conf
 RUN emerge --update --deep --changed-use @world \
     && rm -rf /var/cache/distfiles/* \
