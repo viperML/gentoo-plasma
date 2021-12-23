@@ -51,7 +51,7 @@ RUN emerge kde-plasma/plasma-meta \
     && rm -rf /var/cache/binpkgs/*
 RUN emerge --depclean
 
-RUN emerge dev-vcs/git app-portage/repoman app-portage/flaggie app-misc/jq \
+RUN emerge dev-vcs/git app-portage/repoman app-portage/flaggie app-misc/jq app-portage/gentoolkit \
     && rm -rf /var/cache/distfiles/* \
     && rm -rf /var/cache/binpkgs/*
 
