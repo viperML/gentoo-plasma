@@ -47,6 +47,6 @@ RUN emerge --update --deep --changed-use @world
 RUN emerge kde-plasma/plasma-meta
 RUN emerge --depclean
 
-RUN emerge dev-vcs/git app-portage/repoman app-portage/flaggie
+RUN emerge dev-vcs/git app-portage/repoman app-portage/flaggie app-misc/jq
 
 CMD ["/bin/bash"]
