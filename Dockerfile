@@ -9,7 +9,7 @@ ARG MICROARCH=amd64
 ARG SUFFIX=desktop-systemd
 ARG DIST="https://ftp-osl.osuosl.org/pub/gentoo/releases/${ARCH}/autobuilds"
 ARG SIGNING_KEY="0xBB572E0E2D182910"
-ARG PROC=1
+ARG MAKEOPTS="-j1"
 
 RUN echo "Building Gentoo Container image for ${ARCH} ${SUFFIX} fetching from ${DIST}"
 RUN apk --no-cache add ca-certificates gnupg tar wget xz
@@ -28,11 +28,25 @@ RUN STAGE3PATH="$(wget -O- "${DIST}/latest-stage3-${MICROARCH}-${SUFFIX}.txt" | 
     && echo 'UTC' > etc/timezone \
     && rm ${STAGE3}.DIGESTS.asc ${STAGE3}.CONTENTS.gz ${STAGE3}
 RUN mkdir --parents etc/portage/repos.conf
-RUN ln -s usr/share/portage/config/repos.conf etc/portage/repos.conf/gentoo.conf
-#  && emerge --sync --quiet --ask=n
+RUN cp usr/share/portage/config/repos.conf etc/portage/repos.conf/gentoo.conf
 
 FROM scratch
 
 WORKDIR /
 COPY --from=builder /gentoo/ /
+
+RUN emerge --sync --ask=n
+RUN eselect profile set default/linux/amd64/17.1/desktop/plasma/systemd
+RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
+    && locale-gen \
+    && eselect locale set en_US.utf8 \
+    && env-update
+RUN echo "EMERGE_DEFAULT_OPTS=\"--ask=n --quiet-build=y --binpkg-respect-use=y --getbinpkg=y --with-bdeps=y\"" >> /etc/portage/make.conf
+RUN echo "PORTAGE_BINHOST=\"https://gentoo.osuosl.org/experimental/amd64/binpkg/default/linux/17.1/x86-64/\"" >> /etc/portage/make.conf
+RUN emerge --update --deep --changed-use @world
+RUN emerge kde-plasma/plasma-meta
+RUN emerge --depclean
+
+RUN emerge dev-vcs/git app-portage/repoman app-portage/flaggie
+
 CMD ["/bin/bash"]
