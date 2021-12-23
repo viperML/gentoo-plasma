@@ -29,9 +29,6 @@ RUN STAGE3PATH="$(wget -O- "${DIST}/latest-stage3-${MICROARCH}-${SUFFIX}.txt" | 
     && rm ${STAGE3}.DIGESTS.asc ${STAGE3}.CONTENTS.gz ${STAGE3}
 # Basic stage 3 ready
 
-RUN
-RUN
-
 FROM scratch
 
 WORKDIR /
