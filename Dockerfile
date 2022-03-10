@@ -16,12 +16,12 @@ RUN apk --no-cache add ca-certificates gnupg tar wget xz git
 RUN STAGE3PATH="$(wget -O- "${DIST}/latest-stage3-${MICROARCH}-${SUFFIX}.txt" | tail -n 1 | cut -f 1 -d ' ')" \
     && echo "STAGE3PATH:" $STAGE3PATH \
     && STAGE3="$(basename ${STAGE3PATH})" \
-    && wget -q "${DIST}/${STAGE3PATH}" "${DIST}/${STAGE3PATH}.CONTENTS.gz" "${DIST}/${STAGE3PATH}.DIGESTS.asc" \
+    && wget -q "${DIST}/${STAGE3PATH}" "${DIST}/${STAGE3PATH}.CONTENTS.gz" "${DIST}/${STAGE3PATH}.DIGESTS" \
     && gpg --list-keys \
     && echo "honor-http-proxy" >> ~/.gnupg/dirmngr.conf \
     && echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf \
     && gpg --keyserver hkps://keys.gentoo.org --recv-keys ${SIGNING_KEY} \
-    && gpg --verify "${STAGE3}.DIGESTS.asc" \
+    && gpg --verify "${STAGE3}.DIGESTS" \
     && awk '/# SHA512 HASH/{getline; print}' ${STAGE3}.DIGESTS.asc | sha512sum -c \
     && tar xpf "${STAGE3}" --xattrs-include='*.*' --numeric-owner \
     && ( sed -i -e 's/#rc_sys=""/rc_sys="docker"/g' etc/rc.conf 2>/dev/null || true ) \
